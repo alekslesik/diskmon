@@ -1,0 +1,59 @@
+### Config file example
+
+``` yaml
+# configs/config.yaml
+# for development configs/config.yaml
+# for production mount in docker /etc/diskmon/config.yaml
+
+
+# Common settings
+general:
+  log_level: "info"  # debug/info/warn/error
+  http_port: 8080    # port for REST API
+  grpc_port: 50051   # port for gRPC
+
+# Monitoring settings
+monitoring:
+  interval: "5s"     # duration grab monitoring metrics
+  proc_path: "/proc" # parh to /proc (for tests)
+  
+# eBPF-monitoring
+ebpf:
+  enabled: true
+  programs:
+    - name: "io_tracker"
+      probe_type: "kprobe"  # kprobe/tracepoint
+      target: "vfs_read"    # trackable system call
+    - name: "latency_monitor"
+      probe_type: "kretprobe"
+      target: "vfs_write"
+      
+# Cgroups (IO-restrictions)
+cgroups:
+  base_path: "/sys/fs/cgroup"  # path to cgroups v2
+  default_weight: 50           # default weight (1-100)
+  
+# Alerting rules
+alerting:
+  disk_latency_threshold_ms: 100  # treshold for alerting
+  iops_threshold: 1000            # maximum IOPS
+  notify_methods:
+    - "log"     # local output
+    - "slack"   # Slack-webhook
+    - "email"   # Email-notifications
+
+  slack:
+    webhook_url: "https://hooks.slack.com/..."
+    channel: "#alerts"
+
+  email:
+    smtp_server: "smtp.example.com"
+    from: "diskmon@example.com"
+    to: "admin@example.com"
+    
+prometheus:
+  enabled: true
+  endpoint: "/metrics"  # URL for export
+  port: 9090            # Port Prometheus
+
+```
