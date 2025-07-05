@@ -174,9 +174,9 @@ func New() (*Config, error) {
 // getConfPath return config path from env CONF, if CONF is not exists return err
 func getConfPath() (string, error) {
 	p, ok := os.LookupEnv(CENV)
-	if ok {
-		return p, nil
-	} else {
+	if !ok {
 		return p, ErrConfEnvNotExists
 	}
+
+	return p, nil
 }
