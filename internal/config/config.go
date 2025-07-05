@@ -18,6 +18,22 @@ const (
 	CENV = "CONF_PATH"
 )
 
+// ConfigError struct fot custom errors
+type ConfigError struct {
+	msg string
+	err error
+}
+
+// Error satisfy the error interface condition
+func (c *ConfigError) Error() string {
+	return fmt.Sprintf("config error: %s: %v", c.msg, c.err)
+}
+
+// newConfigError attach err to msg and return new error
+func newConfigError(msg string, err error) error {
+	return &ConfigError{msg: msg, err: err}
+}
+
 // Config represents the root configuration structure.
 // For development, configs/config.yaml is used.
 // For production in Docker, /etc/diskmon/config.yaml is mounted.
@@ -138,17 +154,18 @@ func New() (*Config, error) {
 	
 	p, err := getConfPath()
 	if err != nil {
-		return nil, fmt.Errorf("unable to get config file path: %w", err)
+		return  nil, newConfigError("unable to get config file path", err)
 	}
 	
 	f, err := os.ReadFile(p)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read config file: %w", err)
+		return  nil, newConfigError("unable to read config file", err)
 	}
 	
 	err = yaml.Unmarshal(f, &c)
 	if err != nil {
-		return nil, fmt.Errorf("unable to unmarshall config file: %w", err)
+		return  nil, newConfigError("unable to unmarshall config file", err)
+
 	}
 	
 	return &c, nil
