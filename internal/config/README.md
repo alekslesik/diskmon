@@ -7,39 +7,8 @@ Here's the anti-pattern analysis of your Go configuration package:
 
 ## Anti-Pattern Analysis
 
-### 1. Duplication
 
-*   **Description:** The error handling in `New()` follows a repetitive pattern of wrapping errors with `fmt.Errorf`. While not severe duplication, it creates verbose code.
-*   **Recommendation:** Create a custom error type or helper functions to standardize error wrapping:
 
-```go
-type ConfigError struct {
-    msg string
-    err error
-}
-
-func (e *ConfigError) Error() string {
-    return fmt.Sprintf("config error: %s: %v", e.msg, e.err)
-}
-
-func NewConfigError(msg string, err error) error {
-    return &ConfigError{msg: msg, err: err}
-}
-```
-
-### 2. Unnecessary Nesting
-
-*   **Description:** The `getConfPath()` function uses an unnecessary `else` clause that makes the control flow harder to follow.
-*   **Recommendation:** Simplify with early return:
-
-```go
-func getConfPath() (string, error) {
-    if p, ok := os.LookupEnv(CENV); ok {
-        return p, nil
-    }
-    return "", ErrConfEnvNotExists
-}
-```
 
 ### 3. Inefficient Allocations
 
