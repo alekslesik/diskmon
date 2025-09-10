@@ -1,17 +1,25 @@
 package main
 
 import (
+	"context"
 	"diskmon/internal/config"
 	"log"
 	"os"
 )
 
 func main() {
-	c, err := config.New()
+	ctx := context.Background()
+	defer ctx.Done()
+	
+	cnf, err := config.New()
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
 	
-	_=c
+	err = cnf.Watch(ctx)
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}	
 }

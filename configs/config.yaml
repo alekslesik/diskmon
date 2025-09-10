@@ -16,7 +16,7 @@ monitoring:
   
 # eBPF-monitoring
 ebpf:
-  enabled: true
+  e_enabled: true
   programs:
     - name: "io_tracker"
       probe_type: "kprobe"  # kprobe/tracepoint
@@ -49,6 +49,6 @@ alerting:
     to: "admin@example.com"
     
 prometheus:
-  enabled: true
+  p_enabled: true
   endpoint: "/metrics"  # URL for export
   port: 9090            # Port Prometheus
