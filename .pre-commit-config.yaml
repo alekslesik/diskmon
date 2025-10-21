@@ -1,0 +1,43 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace    # Удаляет лишние пробелы
+      - id: end-of-file-fixer      # Добавляет пустую строку в конец файла
+      - id: check-yaml            # Проверяет синтаксис YAML
+      - id: check-json            # Проверяет синтаксис JSON
+      - id: check-added-large-files # Проверяет большие файлы
+        args: ['--maxkb=500']
+
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.54.2
+    hooks:
+      - id: golangci-lint
+        args: [--timeout=5m]
+
+  - repo: local
+    hooks:
+      - id: go-fmt
+        name: Go Format
+        entry: go fmt ./...
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        
+      - id: go-vet
+        name: Go Vet
+        entry: go vet ./...
+        language: system
+        pass_filenames: false
+        
+      - id: go-test
+        name: Go Test
+        entry: go test -short ./...
+        language: system
+        pass_filenames: false
+        
+      - id: go-mod-tidy
+        name: Go Mod Tidy
+        entry: go mod tidy
+        language: system
+        pass_filenames: false
