@@ -1,5 +1,5 @@
 // Package config implements load, validate, live reload config file
-// 
+//
 
 package config
 
@@ -68,8 +68,8 @@ type Monitoring struct {
 
 // EBPF contains eBPF monitoring configuration
 type EBPF struct {
-	Enabled  bool          `yaml:"e_enabled"`  // turns eBPF monitoring on/off
-	Programs []EBPFProgram `yaml:"programs"` //  eBPF programs to load
+	Enabled  bool          `yaml:"e_enabled"` // turns eBPF monitoring on/off
+	Programs []EBPFProgram `yaml:"programs"`  //  eBPF programs to load
 }
 
 // EBPFProgram defines a single eBPF program configuration
@@ -109,58 +109,61 @@ type EmailConfig struct {
 
 // Prometheus contains metrics export settings
 type Prometheus struct {
-	Enabled  bool   `yaml:"p_enabled"`  // turns Prometheus metrics export on/off
-	Endpoint string `yaml:"endpoint"` // specifies the metrics HTTP endpoint
-	Port     int    `yaml:"port"`     // defines the Prometheus exporter port
+	Enabled  bool   `yaml:"p_enabled"` // turns Prometheus metrics export on/off
+	Endpoint string `yaml:"endpoint"`  // specifies the metrics HTTP endpoint
+	Port     int    `yaml:"port"`      // defines the Prometheus exporter port
 }
 
 // Cnf config struct
 type Cnf struct{ atomic.Value }
-var cnf Cnf
 
+var cnf Cnf
 
 // New return new config instance
 //
 // Returns:
-//   config instance
+//
+//	config instance
 //
 // Example:
-//   cnf, err := config.New()
+//
+//	cnf, err := config.New()
 func New() (Cnf, error) {
 	p, err := getConfPath()
 	if err != nil {
 		return cnf, newConfigError("unable to get config file path", err)
 	}
-	
+
 	f, err := os.Open(p)
-    if err != nil {
-        return cnf, newConfigError("unable to open config file", err)
-    }
-    defer f.Close()
-	
+	if err != nil {
+		return cnf, newConfigError("unable to open config file", err)
+	}
+	defer f.Close()
+
 	decoder := yaml.NewDecoder(f)
 	var c Config
-    if err := decoder.Decode(&c); err != nil {
-        return cnf, newConfigError("unable to decode config", err)
-    }
-	
+	if err := decoder.Decode(&c); err != nil {
+		return cnf, newConfigError("unable to decode config", err)
+	}
+
 	// TODO add validation
 	// if err := c.Validate(); err != nil {
-    // 	return cnf, newConfigError("invalid config", err)
+	// 	return cnf, newConfigError("invalid config", err)
 	// }
 
 	cnf.Store(c)
 	return cnf, nil
 }
 
-
 // getConfPath return config path from env CONF, if CONF is not exists return err
 //
 // Returns:
-//   string - config path
+//
+//	string - config path
 //
 // Example:
-//   p, err := getConfPath()
+//
+//	p, err := getConfPath()
 func getConfPath() (string, error) {
 	p, ok := os.LookupEnv(CENV)
 	if !ok {
@@ -173,29 +176,33 @@ func getConfPath() (string, error) {
 // Watch start live reload config file. If context will done - watcher will close
 //
 // Receiver:
-//   Cnf
+//
+//	Cnf
 //
 // Parameters:
-//   ctx - context
+//
+//	ctx - context
 //
 // Returns:
-//   error - error
+//
+//	error - error
 //
 // Example:
-//   ctx := context.Background()
-//   defer ctx.Done()
-//   err = cnf.Watch(ctx)
+//
+//	ctx := context.Background()
+//	defer ctx.Done()
+//	err = cnf.Watch(ctx)
 func (c *Cnf) Watch(ctx context.Context) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return newConfigError("unable to start congif watcher", err)
 	}
-	
+
 	go func() {
 		<-ctx.Done()
 		watcher.Close()
 	}()
-	
+
 	go func() {
 		defer watcher.Close()
 		for {
@@ -205,24 +212,24 @@ func (c *Cnf) Watch(ctx context.Context) error {
 					return
 				}
 				if event.Op&(fsnotify.Write|fsnotify.Create) != 0 {
-				if newCfg, err := New(); err == nil {
-					log.Println("⚡️ Конфиг перезагружен:", newCfg)
-				} else {
-					log.Println("Ошибка при перезагрузке конфига:", err)
+					if newCfg, err := New(); err == nil {
+						log.Println("⚡️ Конфиг перезагружен:", newCfg)
+					} else {
+						log.Println("Ошибка при перезагрузке конфига:", err)
+					}
 				}
-			}
 			case <-ctx.Done():
 				return
 			}
 		}
 	}()
-	
+
 	p, err := getConfPath()
 	if err != nil {
 		watcher.Close()
 		return newConfigError("unable to get config file path", err)
 	}
-	
+
 	if err := watcher.Add(p); err != nil {
 		watcher.Close()
 		return newConfigError("unable to add config file in config watcher", err)
