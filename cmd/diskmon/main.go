@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"diskmon/internal/config"
+	"diskmon/internal/monitor/iouring"
 	"log"
 	"os"
 )
@@ -21,5 +22,7 @@ func main() {
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
-	}	
+	}
+	
+	iouring.MonitorIOURingSyscalls(808)
 }
