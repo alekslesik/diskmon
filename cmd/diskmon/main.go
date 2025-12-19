@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	log.Println("Start")
 	ctx := context.Background()
 	defer ctx.Done()
 	
@@ -24,5 +25,5 @@ func main() {
 		os.Exit(1)
 	}
 	
-	iouring.MonitorIOURingSyscalls(808)
+	iouring.MonitorIOURingSyscalls()
 }

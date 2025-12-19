@@ -10,9 +10,10 @@ help:
 ## run: go  run
 .PHONY: run
 run:
+	@mkdir -p build
 	@cp configs/config.yaml build
 	@go build -o build/diskmon cmd/diskmon/main.go
-	@cd build && CONF_PATH=config.yaml ./diskmon
+	@cd build && CONF_PATH=config.yaml ./diskmon	
 	
 ## lint: linters
 .PHONY: lint
