@@ -35,14 +35,7 @@ func MonitorIOURingSyscalls() error {
 		}
 	}
 
-	// for {
-	//     for _, s := range ioStat {
-	//         log.Printf("Name %s\n\tBytesSent %d\n\tBytesRecv %d", s.Name, s.BytesSent, s.BytesRecv)
-	//     }
-
-	//     <-ticker.C
-	// }
-	
-	return nil
-	
+	return nil	
 }
+
+
